@@ -1,4 +1,6 @@
 import os
+import json
+import urllib.request
 
 from dotenv import load_dotenv
 
@@ -9,9 +11,15 @@ load_dotenv()
 MAPBOX_TOKEN = os.getenv("MAPBOX_TOKEN")
 MBTA_API_KEY = os.getenv("MBTA_API_KEY")
 
+# Optional: helpful error messages if keys are missing
+if MAPBOX_TOKEN is None:
+    raise RuntimeError("MAPBOX_TOKEN is not set. Check your .env file.")
+if MBTA_API_KEY is None:
+    raise RuntimeError("MBTA_API_KEY is not set. Check your .env file.")
+
 # Useful base URLs (you need to add the appropriate parameters for each API request)
-MAPBOX_BASE_URL = "https://api.mapbox.com/geocoding/v5/mapbox.places"
-MBTA_BASE_URL = "https://api-v3.mbta.com/stops"
+MAPBOX_BASE_URL = "https://api.mapbox.com/search/searchbox/v1/forward"
+MBTA_BASE_URL = "https://api-v3.mbta.com/"
 
 
 # A little bit of scaffolding if you want to use it
@@ -28,14 +36,14 @@ def get_lat_lng(place_name: str) -> tuple[str, str]:
     """
     Given a place name or address, return a (latitude, longitude) tuple with the coordinates of the given place.
 
-    See https://docs.mapbox.com/api/search/geocoding/ for Mapbox Geocoding API URL formatting requirements.
+    See https://docs.mapbox.com/api/search/search-box/#search-request for Mapbox Search API URL formatting requirements.
     """
     pass
 
 
 def get_nearest_station(latitude: str, longitude: str) -> tuple[str, bool]:
     """
-    Given latitude and longitude strings, return a (station_name, wheelchair_accessible) tuple for the nearest MBTA station to the given coordinates.
+    Given latitude and longitude strings, return a (station_name, wheelchair_accessible) tuple for the nearest MBTA station to the given coordinates. wheelchair_accessible is True if the stop is marked as accessible, False otherwise.
 
     See https://api-v3.mbta.com/docs/swagger/index.html#/Stop/ApiWeb_StopController_index for URL formatting requirements for the 'GET /stops' API.
     """

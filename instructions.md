@@ -6,6 +6,8 @@ Welcome to the MBTA Web App project!
 
 You may have used multiple Python libraries to access information on the Internet. For example, `praw` can get Reddit data by interacting with Reddit's application programming interface (API). In this project, you will access web APIs directly and begin to write your own program to connect with new data sources. Then you will build a simple website containing some webpages with a small amount of dynamic content using the `Flask` web framework. This website will help people find a nearby MBTA station and other information by providing an address or point of interest. As part of the project, you are encouraged to use AI tools to explore APIs and Python libraries that have not been covered in classes yet.
 
+**tl;dr:** Build a Flask web app that helps users find the nearest MBTA stop given a place name.
+
 ### Skills Emphasized
 
 Throughout this project, you'll focus on developing the following skills:
@@ -19,26 +21,7 @@ Throughout this project, you'll focus on developing the following skills:
 
 - You may work independently or in a team of two.
 - Each student (or one team member, if in a team) should **use this template repository to create a new public repository for the project, using the template's default name.**
-- If in a team, add the other member as a collaborator. Both members should follow [GitHub collaboration best practices](https://github.com/firstcontributions/first-contributions/blob/main/gui-tool-tutorials/github-desktop-tutorial.md), such as using branches and pull requests for code review. This setup provides access to the code for all team members and supports effective collaboration.
-
----
-
-## 📂 Project Structure
-
-Your submission must include the following files:
-
-```plaintext
-/MBTA-Web-App-Project
-├── static/
-├── templates/
-│   ├── index.html
-│   ├── mbta_station.html
-│   └── ...
-├── .env
-├── mbta_helper.py
-├── app.py
-└── README.md
-```
+- If in a team, add the other member as a collaborator. Both members should follow [GitHub collaboration best practices](https://github.com/firstcontributions/first-contributions/blob/main/docs/gui-tool-tutorials/github-desktop-tutorial.md), such as using branches and pull requests for code review. This setup provides access to the code for all team members and supports effective collaboration.
 
 ---
 
@@ -59,8 +42,6 @@ print(mbta_helper.find_stop_near("Boston Common"))
 
 APIs allow you make requests using specifically constructed URLs and return data in a nicely structured format. There are the three main steps to using any web API:
 
-> ⚠️ **Important**: Never upload your API key to GitHub. Use a `.env` file to store secrets and add it to your `.gitignore`.
-
 1. **Read the API documentation:**
 
     You should check if the API can provide the data you need, how to request that data, and what the return format will be.
@@ -69,12 +50,11 @@ APIs allow you make requests using specifically constructed URLs and return data
 
     You will need to request a unique user key/access token to be sent with each request since web services generally limit the number of requests you can make. In order to get a key/token, you will need to agree to the API's terms, which restrict how you can use the service. If you are uncomfortable with any of the terms, please contact your professor.
 
-    Make sure to keep your key/token secret! If someone else gets a hold of it, they can use it to make requests on your behalf, potentially using up your request limit or even getting you banned from the service. You should store your key in a separate file (e.g. `.env`) and add it to your `.gitignore` file to prevent it from being uploaded to GitHub.
+    Make sure to keep your key/token secret! If someone else gets a hold of it, they can use it to make requests on your behalf, potentially using up your request limit or even getting you banned from the service. You should store your key in a separate file (e.g. `.env`) and add it to your `.gitignore` file to prevent it from being uploaded to GitHub. If your .env file accidentally gets pushed to GitHub, you should immediately rotate (regenerate) your API keys on the provider website.
 
 3. **Test your application and launch to users:**
 
-    The first API we will use is the [Mapbox](https://docs.mapbox.com/api/search/geocoding/), which allows you to specify a place name or address and receive its latitude and longitude. Take a few minutes to read the documentation (it's quite good). You need to sign up and get a free API Key [here](https://account.mapbox.com/). Remember to keep your key secret!
-    You can use the `dotenv` package to load your API key from a `.env` file. This is a common practice in Python projects to keep sensitive information out of your codebase.
+    The first API we will use is the [Mapbox](https://docs.mapbox.com/api/search/search-box/#search-request), which allows you to specify a place name or address and receive its latitude and longitude. Take a few minutes to read the documentation (it's quite good), or play around with the [playground](https://docs.mapbox.com/playground/search-box/forward-reverse/). You need to sign up and get a free Access Token [here](https://console.mapbox.com/account/access-tokens/).
 
 ### 2. Structured Data Responses (JSON)
 
@@ -91,11 +71,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MAPBOX_TOKEN = os.getenv("MAPBOX_TOKEN")
-MAPBOX_BASE_URL = "https://api.mapbox.com/geocoding/v5/mapbox.places"
+MAPBOX_BASE_URL = "https://api.mapbox.com/search/searchbox/v1/forward"
+
+if MAPBOX_TOKEN is None:
+    raise RuntimeError("MAPBOX_TOKEN is not set. Check your .env file.")
 
 query = "Babson College"
 query = query.replace(" ", "%20") # In URL encoding, spaces are typically replaced with "%20". You can also use `urllib.parse.quote` function. 
-url=f"{MAPBOX_BASE_URL}/{query}.json?access_token={MAPBOX_TOKEN}&types=poi"
+url=f"{MAPBOX_BASE_URL}?q={query}&access_token={MAPBOX_TOKEN}"
 print(url) # Try this URL in your browser first
 
 with urllib.request.urlopen(url) as resp:
@@ -103,19 +86,20 @@ with urllib.request.urlopen(url) as resp:
     response_data = json.loads(response_text)
     pprint.pprint(response_data)
 ```
+You may use either `urllib.request` (shown in our examples) or the `requests` library (as AI may suggest you). If you choose `requests`, please keep the code simple and well commented.
 
 We used the [`pprint` module](https://docs.python.org/3/library/pprint.html) to "pretty print" the response data structure with indentation, so it's easier to visualize. You should see something similar to the JSON response from the documentation, except built from Python data types. This response data structure is built from nested dictionaries and lists, and you can step through it to access the fields you want.
 
 ```python
-print(response_data["features"][0]["properties"]["address"])
+print(response_data["features"][0]["properties"]["address"]) # Think about how to access other fields as well
 # 231 Forest St
 ```
 
-**What you need to do**: Write a function (maybe two) to extract the **latitude and longitude** from the JSON response.
+**What you need to do**: Write a function (maybe two) that takes an address or place name as input and extract the **latitude and longitude** from the JSON response, which is probablly `get_json(url: str) -> dict` and `get_lat_lng(place_name: str) -> tuple[str, str]`.
 
 ### 3. Building a URL (Optional)
 
-In the above example we passed a hard-coded URL to the `urlopen` function, but in your code you will need to generate the parameters based on user input. Check out [*Understanding URLs*](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL) and their structure for a helpful guide to URL components and encoding.
+In the above example we passed a hard-coded URL to the `urlopen` function, but in your code you will need to generate the parameters based on user input. Check out [*Understanding URLs*](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/What_is_a_URL) and their structure for a helpful guide to URL components and encoding.
 
 You can build up the URL string manually via using f-string and `str.replace` function as in the example above, but it's probably helpful to check out [`urlencode`](https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlencode) or [`parse`](https://docs.python.org/3/library/urllib.parse.html#urllib.parse.quote) from `urllib.parse` module.
 
@@ -141,25 +125,35 @@ To accomplish this, we will use the [*MBTA-realtime API*](https://api-v3.mbta.co
 
 Then click "Execute" button. You should be able to find a generated URL in Curl. Observe the generated URL and learn how to build that URL using variables. Don't forget to add `api_key={YOUR_MBTA_API_KEY}&` right after `?` in the URL. **Note**: You need to request an API key from [*MBTA V3 API Portal*](https://api-v3.mbta.com).
 
-**What you need to do**: Create a function that takes a latitude and longitude and returns two values: the name of the closest MBTA stop, whether it is wheelchair accessible.
+**What you need to do**: Create a function that takes a latitude and longitude and returns two values: the name of the closest MBTA stop, whether it is wheelchair accessible, which is `get_nearest_station(latitude: str, longitude: str) -> tuple[str, bool]`
 
 **Note**: Unfortunately there are no MBTA stops close enough (approximately a half mile) to Babson College - you have to get out into the city!
 
 ### 5. To Wrap-up
 
-Combine your functions from the previous sections to create a tool that takes a place name or address as input, finds its latitude/longitude, and returns the nearest MBTA stop and whether it is wheelchair accessible.
+Combine your functions from the previous sections to create a tool that takes a place name or address as input, finds its latitude/longitude, and returns the nearest MBTA stop and whether it is wheelchair accessible, which is `find_stop_near(place_name: str) -> tuple[str, bool]`.
 
 **Note**: Coordinate precision matters! Check out [xkcd 2170](https://xkcd.com/2170/) - *"What the Number of Digits in Your Coordinates Means"* and [explanation](https://www.explainxkcd.com/wiki/index.php/2170:_Coordinate_Precision).
 <div style="text-align: center;">
   <img src="https://imgs.xkcd.com/comics/coordinate_precision_2x.png" height="400" alt="xkcd 2170" style="display: block; margin: 0 auto;">
 </div>
 
+Inside the `main()` function of `mbta_helper.py`, you should write a few simple test calls to make sure your functions work correctly before moving on to the Flask part of the project.
+
+For example:
+
+```python
+if __name__ == "__main__":
+    print(get_lat_lng("Boston Common"))
+    print(find_stop_near("Boston Common"))
+```
+
 ### 6. Making It Cooler (Optional)
 
 - Try out some other MBTA APIs - there are a lot of resources, and we have barely scratched the surface.
 - By default, `stops` gives all types of transportation, including buses and commuter rail. Allow the user to specify how they'd like to travel (e.g. T only).
 - Incorporate the MBTA realtime arrival data to suggest the optimal station to walk to.
-- Connect with other local services. Example: the City of Boston has [an app](https://www.boston.gov/transportation/street-bump) that uses a phone's GPS and accelerometer to automatically report potholes to be fixed. You can also see many other apps developed for Boston residents [here](https://www.boston.gov/departments/innovation-and-technology/city-boston-apps).
+- Connect with other local services. Example: the City of Boston has [an app](https://www.boston.gov/departments/new-urban-mechanics/street-bump) that uses a phone's GPS and accelerometer to automatically report potholes to be fixed. You can also see many other apps developed for Boston residents [here](https://www.boston.gov/government/cabinets/innovation-and-technology/city-boston-apps).
 
 ---
 
@@ -211,8 +205,8 @@ What use is a web application if you can't get any data back from the user? Let'
 
 1. Upon visiting the index page at `http://127.0.0.1:5000/`, the user will be greeted by a page that says hello, and includes an input **form** that requests a place name.
 2. Upon clicking the 'Submit' button, the data from the form will be sent via a **POST** request to the Flask backend at the route `POST /nearest_mbta`
-3. (Optional) Perform some simple validation on the user input. You can use [wtforms](https://flask.palletsprojects.com/en/3.0.x/patterns/wtforms/) to implement the validation.
-4. The Flask backend will handle the request to `POST /nearest_mbta`. Then your app will render a `mbta_station.html` page for the user - presenting nearest MBTA stop and whether it is wheelchair accessible. In this step, you need to use/import the module you created for **Part 1**. The HTML templates (e.g. `index.html` and `mbta_station.html`) should be placed under the `templates/` folder. Flask requires this folder name for rendering templates.
+3. (Optional) Perform some simple validation on the user input. You can use [wtforms](https://flask.palletsprojects.com/en/stable/patterns/wtforms/) to implement the validation.
+4. The Flask backend will handle the request to `POST /nearest_mbta`. Then your app will render a `mbta_station.html` page for the user - presenting nearest MBTA stop and whether it is wheelchair accessible. In this step, you need to use/import the module (`mbta_helper`) you created for **Part 1**.
 5. If something is wrong, the app will render a simple error page, which will include some indication that the search did not work, along with a button or link that redirects the user back to the home page.
 
 It will be up to you to make this happen. If you feel confident in your ability to implement this, go for it! If you'd like more scaffolding, continue reading.
@@ -243,12 +237,12 @@ To complete this project, the official [Flask documentation](https://flask.palle
 
 ---
 
-## Part 3: *Wow!* Factors (25%)
+## Part 3: *Wow!* Factors (20%)
 
 After completing the required parts of this project, you can spice it up by adding additional features. Some suggestions:
 
 - Refer to [6. Making it Cooler (Optional)](#6-making-it-cooler-optional) section in Part 1 and [6. Going Further (Optional)](#6-going-further-optional) section in Part 2 for more ideas.
-- Display weather information - Add real-time weather data for an extra interactive touch! Note: While the weather might be similar across locations (since we're focusing on the Greater Boston area), this feature adds a layer of engagement. Say "hello" to our old friend, [OpenWeatherMap API](https://openweathermap.org/api).
+- Display weather information - Add real-time weather data for an extra interactive touch! Note: While the weather might be similar across locations (since we're focusing on the Greater Boston area), this feature adds a layer of engagement.  Say "hello" to our old friend, [OpenWeatherMap API](https://openweathermap.org/api).
 - Any interesting events in the nearby area? Try [Ticketmaster API](https://developer.ticketmaster.com/products-and-docs/apis/getting-started/) to find out concerts, sport events information.
 - Yes, you guessed it! - More APIs. Some suggestions:
   - [public-apis/public-apis](https://github.com/public-apis/public-apis)
@@ -259,23 +253,6 @@ After completing the required parts of this project, you can spice it up by addi
   - [APIs.guru](https://apis.guru/)
   - [PublicAPIs.io](https://publicapis.io/)
 - Get Creative with AI - Stuck or looking for new ideas? Try using an AI tool for a quick brainstorming session! It can help you come up with fun feature ideas, suggest code snippets, or even troubleshoot API integrations. Think of it like having an extra teammate to bounce ideas off and make your project stand out.
-- Testing! - Write unit tests for your code. This is a great way to ensure that your code is working as expected and to catch any bugs before they become a problem. You can use the `unittest` module in Python to write and run your tests. Check out [this tutorial](https://realpython.com/python-testing/) for more information on testing in Python.
-
----
-
-## ❗ Common Pitfalls
-
-Before wrapping up, here are some common issues students have run into. Skimming this list might save you hours of frustration.
-
-- 🔑 **API key not loaded**: If `MAPBOX_TOKEN` or your MBTA key is `None`, make sure you:
-  - Created a `.env` file,
-  - Called `load_dotenv()` in your Python script,
-  - Didn’t accidentally push `.env` to GitHub.
-- 🔗 **Malformed URL**: If the API URL isn’t working, print it out (`print(url)`) and try it in your browser to see what’s wrong.
-- 🧠 **KeyError or IndexError with JSON data**: The JSON structure isn’t always what you expect. Use `pprint(response_data)` to explore the structure before accessing deeply nested values.
-- 🌐 **Form not submitting**: Make sure your HTML `<form>` uses the correct `method="POST"` and `action="/nearest_mbta"`.
-- 🧭 **Babson has no MBTA stops nearby**: Test with a location *in* Boston (e.g., “Fenway Park”, “Museum of Science”) so you get meaningful API results.
-- 💻 **Your Flask app doesn’t restart when you update code**: Run it in **debug mode** with `app.run(debug=True)`.
 
 ---
 
@@ -289,29 +266,65 @@ Use this template repository to create **a new public repository**, keeping the 
 
 Write a summary of your project and your reflections on it in [`README.md`](README.md), using [Markdown format](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) (1 per team, not 1 per person). The [`README.md`](README.md) file should include the following sections:
 
-**1. Project Overview** (~1 paragraph)
+#### 1. Project Overview
 
-Write a short abstract describing your project. Summarize the main objectives, key features, and any extensions or additional functionality implemented beyond the basic requirements.
+Write a clear and concise description of your project. Summarize:
 
-**2. Reflection** (~3 paragraphs + screenshots)
+- The main goal of your web app
+- The core features you implemented
+- Any extensions, “Wow!” features, or creative additions beyond the basic requirements
 
-After you finish the project, Please write a short document for reflection.
+This paragraph should read like an abstract: short, factual, and focused on what your app does.
 
-- Discuss the **development process** point of view, including what went well and what could be improved. Reflect on topics such as project scoping, testing, debugging, and any specific challenges encountered. What strategies helped the team succeed, and what adjustments might have made the project smoother?
+#### 2. Reflection
 
-- Discuss your **team's work division**, including how the work was planned to be divided and how it actually happened. Address any issues that arose while working together and how they were addressed. Finally, discuss what you would do differently next time.
+After completing the project, write a short but thoughtful reflection covering the points below. Avoid generic statements. Refer to specific examples from your work.
 
-- Discuss from a **learning** perspective, what you learned through this project and how you'll use what you learned going forward. Share your experience with AI tools - did they enhance your efficiency or understanding, and if so, how? What do you wish you had known beforehand that would have helped you succeed? Include screenshots showing key stages of development or specific challenges you overcame.
+1. **Development Process**. Reflect on your workflow during the project. You may discuss:
+
+   - What went well (e.g., breaking the problem into functions, testing helper functions early, debugging strategies)
+   - What was challenging (API errors, URL formatting, JSON structure, Flask routing, etc.)
+   - How you approached problem-solving
+   - What you would change if you were doing the project again
+
+    Focus on process, not just results.
+
+2. **Teamwork & Work Division**. Explain how your team planned and actually divided the work. You may discuss:
+
+   - Who handled which parts (APIs, helper module, Flask routes, HTML templates, CSS, etc.)
+   - Whether your plan changed
+   - Any communication or coordination issues and how you resolved them
+   - What you would do differently next time to improve collaboration
+
+    If you worked alone, write about how you managed your tasks.
+
+3. **Learning & Use of AI Tools**. Discuss what you learned and how this project contributed to your understanding of:
+
+   - APIs and JSON data
+   - Flask and backend web development
+   - Project organization and debugging
+   - Writing helper functions and integrating modules
+
+    Also reflect on your experience using AI tools:
+
+    - What AI tools you used (e.g., ChatGPT, GitHub Copilot, etc.)
+    - How AI helped (ideas, troubleshooting, code review, debugging, learning unfamiliar libraries)
+    - Any limitations you discovered
+    - What you wish you had known earlier
+
+Include **screenshots** showing important moments in development (e.g., debugging API output, testing in main(), your first working Flask form, error messages you solved, etc.).
 
 **Note**:
 
-- Start by listing all team members' names at the top of the document.
+- **Start by listing all team members' names at the top of the document.**
 - Make the `README.md` file clear and concise. There is no need to use fancy words or ChatGPT.
 
-### 3. Turning in Project
+---
 
-- Push your completed code and updated `README.md` to your GitHub repository (the repository where your team has been working on).
-- Submit the project's GitHub repository URL to Canvas. In the Canvas comment section, include the names of all team members. **Note: Each team member must submit on Canvas and add this comment.**
+## Turning in Project
+
+1. Push your completed code and updated `README.md` to your GitHub repository (the repository where your team has been working on).
+2. Submit the project's GitHub repository URL to Canvas. In the Canvas comment section, include the names of all team members. **Note: Every team member must submit on Canvas and add this comment.**
 
 ---
-*updated:* *4/14/2025*
+*Updated:* *11/16/2025*
