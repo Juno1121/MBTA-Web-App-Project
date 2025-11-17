@@ -20,7 +20,7 @@ Throughout this project, you'll focus on developing the following skills:
 ### Team Logistics:
 
 - You may work independently or in a team of two.
-- Each student (or one team member, if in a team) should **use this template repository to create a new public repository for the project, using the template's default name.**
+- Each student (or one team member, if in a team) should **fork this template repository to create a new public repository for the project, keeping the template's default name.**
 - If in a team, add the other member as a collaborator. Both members should follow [GitHub collaboration best practices](https://github.com/firstcontributions/first-contributions/blob/main/docs/gui-tool-tutorials/github-desktop-tutorial.md), such as using branches and pull requests for code review. This setup provides access to the code for all team members and supports effective collaboration.
 
 ---
@@ -260,7 +260,7 @@ After completing the required parts of this project, you can spice it up by addi
 
 ### 1. Getting Started
 
-Use this template repository to create **a new public repository**, keeping the default name from the template. If working in a team, add the other member as a **collaborator** on GitHub and follow [GitHub collaboration best practices](https://github.com/firstcontributions/first-contributions/blob/main/gui-tool-tutorials/github-desktop-tutorial.md). Once the new repository is created, clone it (the version under your GitHub profile) to your computer.
+Fork this template repository to create **a new public repository**, keeping the default name from the template. If working in a team, add the other member as a **collaborator** on GitHub and follow [GitHub collaboration best practices](https://github.com/firstcontributions/first-contributions/blob/main/gui-tool-tutorials/github-desktop-tutorial.md). Once the repository is forked, clone your fork (the version under your GitHub profile) to your computer.
 
 ### 2. Project Writeup and Reflection
 
