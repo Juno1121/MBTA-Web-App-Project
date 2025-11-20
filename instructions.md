@@ -1,5 +1,7 @@
 # MBTA Web App Project - Instructions
 
+> **IMPORTANT NOTE: This project focuses on the REQUIRED sections only. All OPTIONAL sections should be IGNORED and SKIPPED. Focus on completing Parts 1 and 2 with only the required functionality.**
+
 ## Introduction
 
 Welcome to the MBTA Web App project!
@@ -97,15 +99,7 @@ print(response_data["features"][0]["properties"]["address"]) # Think about how t
 
 **What you need to do**: Write a function (maybe two) that takes an address or place name as input and extract the **latitude and longitude** from the JSON response, which is probablly `get_json(url: str) -> dict` and `get_lat_lng(place_name: str) -> tuple[str, str]`.
 
-### 3. Building a URL (Optional)
-
-In the above example we passed a hard-coded URL to the `urlopen` function, but in your code you will need to generate the parameters based on user input. Check out [*Understanding URLs*](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/What_is_a_URL) and their structure for a helpful guide to URL components and encoding.
-
-You can build up the URL string manually via using f-string and `str.replace` function as in the example above, but it's probably helpful to check out [`urlencode`](https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlencode) or [`parse`](https://docs.python.org/3/library/urllib.parse.html#urllib.parse.quote) from `urllib.parse` module.
-
-**What you need to do**: Write a function that takes an address or place name as input and returns a properly encoded URL to make a Mapbox geocoding request.
-
-### 4. Getting Local
+### 3. Getting Local
 
 Now that we can find the coordinates of a given place, let's take things one step further and find the closest public transportation station to that location.
 <div style="text-align: center;">
@@ -129,7 +123,7 @@ Then click "Execute" button. You should be able to find a generated URL in Curl.
 
 **Note**: Unfortunately there are no MBTA stops close enough (approximately a half mile) to Babson College - you have to get out into the city!
 
-### 5. To Wrap-up
+### 4. To Wrap-up
 
 Combine your functions from the previous sections to create a tool that takes a place name or address as input, finds its latitude/longitude, and returns the nearest MBTA stop and whether it is wheelchair accessible, which is `find_stop_near(place_name: str) -> tuple[str, bool]`.
 
@@ -147,13 +141,6 @@ if __name__ == "__main__":
     print(get_lat_lng("Boston Common"))
     print(find_stop_near("Boston Common"))
 ```
-
-### 6. Making It Cooler (Optional)
-
-- Try out some other MBTA APIs - there are a lot of resources, and we have barely scratched the surface.
-- By default, `stops` gives all types of transportation, including buses and commuter rail. Allow the user to specify how they'd like to travel (e.g. T only).
-- Incorporate the MBTA realtime arrival data to suggest the optimal station to walk to.
-- Connect with other local services. Example: the City of Boston has [an app](https://www.boston.gov/departments/new-urban-mechanics/street-bump) that uses a phone's GPS and accelerometer to automatically report potholes to be fixed. You can also see many other apps developed for Boston residents [here](https://www.boston.gov/government/cabinets/innovation-and-technology/city-boston-apps).
 
 ---
 
@@ -205,9 +192,8 @@ What use is a web application if you can't get any data back from the user? Let'
 
 1. Upon visiting the index page at `http://127.0.0.1:5000/`, the user will be greeted by a page that says hello, and includes an input **form** that requests a place name.
 2. Upon clicking the 'Submit' button, the data from the form will be sent via a **POST** request to the Flask backend at the route `POST /nearest_mbta`
-3. (Optional) Perform some simple validation on the user input. You can use [wtforms](https://flask.palletsprojects.com/en/stable/patterns/wtforms/) to implement the validation.
-4. The Flask backend will handle the request to `POST /nearest_mbta`. Then your app will render a `mbta_station.html` page for the user - presenting nearest MBTA stop and whether it is wheelchair accessible. In this step, you need to use/import the module (`mbta_helper`) you created for **Part 1**.
-5. If something is wrong, the app will render a simple error page, which will include some indication that the search did not work, along with a button or link that redirects the user back to the home page.
+3. The Flask backend will handle the request to `POST /nearest_mbta`. Then your app will render a `mbta_station.html` page for the user - presenting nearest MBTA stop and whether it is wheelchair accessible. In this step, you need to use/import the module (`mbta_helper`) you created for **Part 1**.
+4. If something is wrong, the app will render a simple error page, which will include some indication that the search did not work, along with a button or link that redirects the user back to the home page.
 
 It will be up to you to make this happen. If you feel confident in your ability to implement this, go for it! If you'd like more scaffolding, continue reading.
 
@@ -222,37 +208,6 @@ To complete this project, the official [Flask documentation](https://flask.palle
 - **Handling POST Requests:** To learn more about handling post requests in Flask, read section [*HTTP Methods*](https://flask.palletsprojects.com/en/stable/quickstart/#http-methods) again.
 
 - **Accessing the Form Data:** To access the form data, check out section [*'The Request Object'*](https://flask.palletsprojects.com/en/stable/quickstart/#the-request-object) on using the Flask `request` utility.
-
-### 6. Going Further (Optional)
-
-- **Want to keep track of some data in your web app?** Instead of using a `.txt` file or a `pickle` file, it's common practice in nearly any web app to use a **database**. A few especially well-known database choices are `MySQL`, `SQLite` (my go-to choice for a quick project/demo), or `PostgreSQL`, which all use **SQL** (Structured Query Language) to manipulate all stored data, as do many other common relational databases. Alternatively, you may use `MongoDb`, which stores data in an unstructured format similar to JSON. MongoDb is stupidly easy to set up and use, but I'd stop and think first before jumping right in. It may be the easy choice, but representing your data intelligently in a relational table can be much more effective and less of a headache later on.
-  
-- **But HTML is so ugly!** HTML alone may not look visually appealing, which is why we use CSS (Cascading Style Sheets) to add some extra flair and style to our HTML. You can change pretty much anything about HTML - colors, shapes, sizes, placement, etc. - with CSS rules. It's also pretty simple to write. Check out resources such as [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Learn/CSS/First_steps) and/or [W3Schools](https://www.w3schools.com/css/css_intro.asp) to learn more about CSS.
-  
-- **What about making my website more dynamic?** While this class may focus on Python, you can venture out a little and use [`Bootstrap`](https://getbootstrap.com/), [`Tailwind CSS`](https://tailwindcss.com/) or [`shadcn/ui`](https://ui.shadcn.com/) to add dynamic elements to your web app. They might sound scary, but you use it in a way similar to adding/linking CSS styling to your HTML. You can also write vanilla JavaScript (which isn't too difficult), which allows you to create more beautiful, responsive, and dynamic content for your web app.
-  
-- **Interested in an alternative to Flask?** Learn more about [Django](https://www.djangoproject.com/). They don't have many major differences other than some small quirks in conventions and style.
-
-- **Ready to put your web app online?** Deploying your app to the internet is simpler than it sounds. You can host it  on cloud platforms like [PythonAnywhere](https://help.pythonanywhere.com/pages/Flask/) (free), [Render](https://render.com/docs/deploy-flask), [Railway](https://alphasec.io/how-to-deploy-a-python-flask-app-on-railway/), [Heroku](https://realpython.com/flask-by-example-part-1-project-setup/), etc. Check out the [Flask documentation on Deploying to Production](https://flask.palletsprojects.com/en/stable/deploying/) for more information.
-
----
-
-## Part 3: *Wow!* Factors (20%)
-
-After completing the required parts of this project, you can spice it up by adding additional features. Some suggestions:
-
-- Refer to [6. Making it Cooler (Optional)](#6-making-it-cooler-optional) section in Part 1 and [6. Going Further (Optional)](#6-going-further-optional) section in Part 2 for more ideas.
-- Display weather information - Add real-time weather data for an extra interactive touch! Note: While the weather might be similar across locations (since we're focusing on the Greater Boston area), this feature adds a layer of engagement.  Say "hello" to our old friend, [OpenWeatherMap API](https://openweathermap.org/api).
-- Any interesting events in the nearby area? Try [Ticketmaster API](https://developer.ticketmaster.com/products-and-docs/apis/getting-started/) to find out concerts, sport events information.
-- Yes, you guessed it! - More APIs. Some suggestions:
-  - [public-apis/public-apis](https://github.com/public-apis/public-apis)
-  - [n0shake/Public-APIs](https://github.com/n0shake/Public-APIs)
-  - [Free Public APIs](https://www.freepublicapis.com/)
-  - [RapidAPI - Discover More APIs](https://rapidapi.com/hub)
-  - [ApiVault](https://apivault.dev/)
-  - [APIs.guru](https://apis.guru/)
-  - [PublicAPIs.io](https://publicapis.io/)
-- Get Creative with AI - Stuck or looking for new ideas? Try using an AI tool for a quick brainstorming session! It can help you come up with fun feature ideas, suggest code snippets, or even troubleshoot API integrations. Think of it like having an extra teammate to bounce ideas off and make your project stand out.
 
 ---
 
